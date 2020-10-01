@@ -19,6 +19,48 @@ class MyArray extends Array {
 		console.log(`%c ${label}`, 'color: blue; font-weight: 600;', this);
 		return this;
 	}
+
+	push(val) {
+		super.push(val);
+		return this;
+	}
+
+	forEach(callback) {
+		for(let i = 0; i < this.length; i++) {
+			callback(this[i], i, this);
+		}
+	}
+
+	map(callback) {
+		const newInstance = new MyArray();
+		for(let i = 0; i < this.length; i++) {
+			const result = callback(this[i], i, this);
+			newInstance.push(result);
+		}
+		return newInstance;
+	}
+
+	filter(callback) {
+		const newInstance = new MyArray();
+		for(let i = 0; i < this.length; i++) {
+			if(callback(this[i], i, this)) {
+				newInstance.push(this[i]);
+			}
+		}
+		return newInstance;
+	}
+
+	reduce(callback, accu) {
+		const tmpArry = [...this];
+
+		if(accu === undefined) {
+			accu = tmpArry.shift();
+		}
+		for(let i = 0; i < tmpArry.length; i++) {
+			accu = callback(accu, tmpArry[i]);
+		}
+		return accu;
+	}
 }
 
 function double(v, i, obj) {
