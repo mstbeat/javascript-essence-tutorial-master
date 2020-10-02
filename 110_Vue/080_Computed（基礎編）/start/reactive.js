@@ -17,10 +17,18 @@ function reactive(target) {
 }
 
 let activeEffect = null;
-function effect(fn) {
-  activeEffect = fn;
-  activeEffect();
-  activeEffect = null;
+function effect(fn, { computed = false } = {}) {
+  try {
+    activeEffect = fn;
+    activeEffect.computed = computed;
+    if(computed) {
+      activeEffect.dirty = true;
+    }
+    activeEffect();
+    return activeEffect;
+  } finally {
+    activeEffect = null;
+  }
 }
 
 const targetMap = new WeakMap();
@@ -54,6 +62,31 @@ function trigger(target, key) {
   if(!deps) {
     return;
   }
-  deps.forEach(effect => effect());
+  deps.forEach(effect => {
+    if(effect.computed) {
+      effect.dirty = true;
+    } else {
+      effect();
+    }
+  });
 }
-export { effect, trigger, reactive };
+
+function computed(getter) {
+  let computed, value;
+  const runner = effect(getter, { computed: true });
+
+  computed = {
+    get value() {
+      if(runner.dirty) {
+        value = runner();
+        runner.dirty = false;
+        console.log('%c[computed:refresh]', 'background: purple; color: white;', value);
+      }
+
+      return value;
+    }
+  }
+  return computed;
+}
+
+export { effect, trigger, reactive, computed };

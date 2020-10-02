@@ -4,12 +4,38 @@
 <body>
   <button id="inc">Push Me</button>
   <script>
-    const body = document.querySelector('body');
-    const div = document.createElement('div');
-    div.innerHTML = 0;
-    div.setAttribute('class', 'green');
-    body.appendChild(div);
-    const button = body.querySelector('#inc');
+    const nodeOpt = {
+      qs(selector, scope) {
+        return (scope || document).querySelector(selector);
+      },
+      create(type) {
+        return document.createElement(type);
+      },
+      setAttr(target, key, value) {
+        target.setAttribute(key, value);
+      },
+      append(parent, target) {
+        parent.appendChild(target);
+      },
+      html(target, value) {
+        div.innerHTML = value;
+      },
+      on(target, eventType, callback) {
+        target.addEventListener(eventType, () => {
+          callback();
+        })
+      }
+    }
+    let i = 0;
+    const body = nodeOpt.qs('body');
+    const button = nodeOpt.qs('#inc', body);
+    const div = nodeOpt.create('div');
+    nodeOpt.setAttr(div, 'class', 'green')
+    nodeOpt.append(body, div);
+    nodeOpt.html(div, i);
+    nodeOpt.on(button, 'click', () => {
+          nodeOpt.html(div, ++i);
+        })
     console.dir(div)
   </script>
   <style>
